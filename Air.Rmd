@@ -1,0 +1,401 @@
+---
+title: "Study of air pollution in Madrid"
+date: "17/12/2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE, warning=F, message=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1.Retrieve every piece of raw data and integrate all in a new hourly dataset
+
+Store all .csv files in a vector, including the directory file prepended for use in the working directory:
+```{r retrieve_files}
+files_list <- list.files(path = "./workgroup_data", pattern = ".csv", full.names = TRUE)
+```
+<br />
+
+Load library *stringr*, installing it beforehand if necessary, for use in the subsequent step:
+```{r load_stringr}
+if (!'stringr' %in% installed.packages()) {
+    install.packages('stringr')
+} 
+library(stringr)
+```
+<br />
+
+From the list of file names:
+
+* extract the date and file type information <YY>_<M/MM>.csv as a regex from each file name
+* drop the extension .csv
+* split the year and month and store as separate strings for each file name
+```{r file_date_extract}
+tmp_YM <- strsplit(gsub("\\.csv$","", str_extract(files_list, "[0-9]+_[0-9]+\\.csv")), split = '_')
+```
+<br />
+
+Within a for-loop over the entire sequence of files:
+
+* read file into a dataframe
+    + apply cbind() to attach *year* and *month* columns to the dataframe
+        - *year* and *month* values are retrieved from list *tmp_YM* and coerced to integers
+        _ *year* value is extended from YY to YYYY format
+        - *year* and *month* values are implicitly recycled as necessary to match the number of rows of the dataframe
+    + apply rbind() to append the dataframe to the cumulative dataframe embedding all rows up to the previous cycle
+    + for the very first cycle, the cumulative dataframe is initialised as an empty dataframe
+```{r for_loop}
+hourly_df <- data.frame()
+for (idx in 1:length(files_list)) {
+    tmp_df <- cbind(year = as.integer(paste0('20', tmp_YM[[idx]][1])), month = as.integer(tmp_YM[[idx]][2]), read.csv(files_list[idx]))
+    hourly_df <- rbind(hourly_df, tmp_df)
+}
+rm(tmp_df)
+dim(hourly_df)
+head(hourly_df)
+```
+<br />
+
+### 2.Process the hourly data to create a daily dataset, by averaging each hourly measure, containing also the weather variables and the names for each pollutant parameter
+
+Prepare the libraries needed for appropriate table rendering:
+```{r libs_rendering}
+if (!'knitr' %in% installed.packages()) {
+    install.packages('knitr')
+} 
+library(knitr)
+
+if (!'kableExtra' %in% installed.packages()) {
+    install.packages('kableExtra')
+} 
+library(kableExtra)
+```
+<br />
+
+The parameters of interest in *hourly_df* are:
+
+* NO2 = 8
+* SO2 = 1
+* O3 = 14
+* PM2.5 = 9
+
+Store these equivalences in an auxiliary dataframe and subset *parameter* rows from *hourly_df*, dropping the rest:
+```{r subset_parameters, results = 'asis'}
+df_eq <- data.frame(code = c(8,1,14,9), pollutant = c('NO2','SO2','O3','PM2.5'))
+kable_styling(kable(df_eq), full_width = F)
+
+parameters <- as.integer(df_eq$code)
+hourly_df <- subset(hourly_df, subset = parameter %in% parameters)
+```
+<br />
+
+Aggregate *hourly_df* by:
+
+* averaging the value of each parameter over all stations for each hourly timestamp
+* average all (averaged) hourly values within the same daily timestamp for each parameter
+```{r aggr_mean_sum, results = 'asis'}
+hourly_df <- aggregate(hourly_df$value,
+                       by = list(parameter = hourly_df$parameter,
+                                 hour = hourly_df$hour,
+                                 day = hourly_df$day,
+                                 month = hourly_df$month,
+                                 year = hourly_df$year),
+                       FUN = mean, na.rm = T)
+names(hourly_df)[names(hourly_df) == 'x'] <- 'value'
+
+kable_styling(kable(head(hourly_df)), full_width = F)
+
+hourly_df <- aggregate(hourly_df$value,
+                       by = list(parameter = hourly_df$parameter,
+                                 day = hourly_df$day,
+                                 month = hourly_df$month,
+                                 year = hourly_df$year),
+                       FUN = mean)
+names(hourly_df)[names(hourly_df) == 'x'] <- 'value'
+
+kable_styling(kable(head(hourly_df)), full_width = F)
+```
+<br />
+
+Change column *parameter* from **integer** to **factor**, showing the names of the pollutants as levels:
+```{r cast_parameters, results = 'asis'}
+hourly_df$parameter <- factor(hourly_df$parameter, levels = df_eq$code, labels = df_eq$pollutant)
+kable_styling(kable(head(hourly_df)), full_width = F)
+```
+<br />
+
+Paste *year*, *month* and *day* columns into a single YYYY-MM-DD character type column (with implicit coertion from **integer** to **character**), transform *date* from **character** to **Date** type column, and remove original *year*, *month* and *day* columns:
+```{r fix_date, results = 'asis'}
+hourly_df$date <- paste(hourly_df$year, hourly_df$month, hourly_df$day, sep = "-")
+hourly_df$date <- as.Date(hourly_df$date, format = "%Y-%m-%d")
+hourly_df[,c('year','month','day')] <- NULL
+
+kable_styling(kable(head(hourly_df)), full_width = F)
+```
+<br />
+
+Load library readxl, installing it beforehand if necessary, for use in the subsequent step:
+```{r load_readxl}
+if (!'readxl' %in% installed.packages()) {
+    install.packages('readxl')
+} 
+library(readxl)
+```
+<br />
+
+Read .xlsx file into a dataframe and:
+
+ * Keep only columns *date*, *temp_avg*, *precipitation* and *wind_avg_speed*
+ * Transform *date* column from **DateTime** to **Date**
+ * Merge *hourly_df* and *weather_df* via inner join by *date* (both columns are in YYYY-MM-DD format)
+```{r merge_dfs, results = 'asis'}
+weather_df <- read_excel("./weather.xlsx")
+kable_styling(kable(head(weather_df)), full_width = F)
+
+weather_df <- subset(weather_df, select = c(date, temp_avg, precipitation, wind_avg_speed))
+weather_df$date <- as.Date(weather_df$date, format = "%Y-%m-%d")
+kable_styling(kable(head(weather_df)), full_width = F)
+
+df <- merge(hourly_df, weather_df, by = 'date')
+kable_styling(kable(head(df)), full_width = F)
+```
+<br />
+
+Load library *lubridate*, installing it beforehand if necessary, for use in the subsequent step:
+```{r load_lubridate}
+if (!'lubridate' %in% installed.packages()) {
+    install.packages('lubridate')
+} 
+library(lubridate)
+```
+<br />
+
+Add factor column to distinguish season within the year:
+```{r add_season, results = 'asis'}
+df$season <- factor(ifelse(3 <= month(df$date) & month(df$date) <= 5, 'Spring',
+                           ifelse(6 <= month(df$date) & month(df$date) <= 8, 'Summer',
+                                  ifelse(9 <= month(df$date) & month(df$date) <= 11, 'Autumn', 'Winter'))),
+                    levels = c('Spring','Summer','Autumn','Winter'))
+kable_styling(kable(head(df)), full_width = F)
+```
+<br />
+
+Final inspection of the working data.frame:
+```{r inspect_df}
+str(df)
+```
+<br />
+
+Load library *data.table*, installing it beforehand if necessary, for use in the subsequent step:
+```{r load_datatable}
+if (!'data.table' %in% installed.packages()) {
+    install.packages('data.table')
+} 
+library(data.table)
+```
+<br />
+
+For ease of *ggplot* executions, store alternative shapes of *df* via melt() and dcast():
+
+* Shorten df.length and expand df.width by having *parameter* values in separate columns
+* Extend df.length and contract df.width by having *weather* variables as factor levels in a common column
+```{r melt_dcast, results = 'asis'}
+dt_wide <- dcast(as.data.table(df),
+                 date + season + temp_avg + precipitation + wind_avg_speed ~ parameter,
+                 value.var = 'value')
+kable_styling(kable(head(dt_wide)), full_width = F)
+
+dt_long <- melt(as.data.table(df),
+                id.vars = c('date', 'season', 'parameter','value'),
+                measure.vars = c('temp_avg','precipitation','wind_avg_speed'),
+                variable.name = 'weather_variable',
+                value.name = 'weather_value')
+kable_styling(kable(head(dt_long)), full_width = F)
+```
+<br />
+
+### 3.Descriptive analysis
+
+Load necessary libraries and set the default theme:
+```{r load_plotlibs}
+if (!'ggplot2' %in% installed.packages()) {
+    install.packages('ggplot2')
+} 
+library(ggplot2)
+
+if (!'corrplot' %in% installed.packages()) {
+    install.packages('corrplot')
+} 
+library(corrplot)
+
+if (!'gridExtra' %in% installed.packages()) {
+    install.packages('gridExtra')
+} 
+library(gridExtra)
+
+if (!'leaflet' %in% installed.packages()) {
+    install.packages('leaflet')
+} 
+library(leaflet)
+
+theme_set(theme_minimal(base_size = 16))
+```
+<br />
+
+#### 3.1 Correlation matrices
+Create a correlation matrix with the dcasted data.table dt_wide:
+```{r corr_matrix, results = 'asis'}
+mcor <- cor(dt_wide[, !c('date','season')])
+kable_styling(kable(round(mcor, digits = 4)), full_width = F)
+```
+Graphically, as a heatmap with quantified correlation:
+```{r heat_map}
+mycol <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA")) 
+corrplot(mcor, method="shade", shade.col=NA, tl.col="black", tl.srt=45,
+         col=mycol(200), addCoef.col="black",order="AOE")
+```
+<br />
+This is obtained to visualize positive and negative relationships that help us interpret the results better. For instance,if we take NO2 as a feature of interest, we can see a hight negative correlation between NO2 and O3 and high positive correlation between NO2 and SO2. 
+<br />
+
+Scatter plot of the interaction of all (4x3) parameters with all weather variables:
+```{r scatter_pol_weather, fig.width = 12, fig.height = 12}
+ggplot(dt_long, aes(x = value, y = weather_value)) + geom_point(size=1) + facet_wrap(~ weather_variable + parameter)
+```
+
+#### 3.2 Distribution of parameters
+Parameter densities in facets:
+```{r dist_pollutants, fig.align = "center"}
+ggplot(df, aes(x = value)) + geom_density(aes(color = parameter)) + facet_wrap(~parameter)
+```
+We infer from the density chart that NO2 and O3 are somewhat normally distributed as opposed to SO2 and PM2.5 which are skewed to the left where the mean could be higher than the median.
+<br />
+
+Read location of stations and show their spatial distribution.
+The below map depicts the Retiro station (city center) in red where all the weather related data is collected along with the pollution data collected by the remaining stations. We also notice that certain stations are very far away from the city center like two stations near Barajas and one near Casa de Campo, which might be a cause for skewness in data (which needs to be confirmed through further study/RCA):
+```{r dist_stations, fig.align = "center"}
+station_data <- read_excel("./Stations.xlsx")
+
+leaflet(data = station_data) %>% setView(lng = -3.6826, lat = 40.4144, zoom = 12) %>%
+    addProviderTiles(providers$CartoDB.Positron) %>%
+    addCircleMarkers(~long, ~lat, color = ~ifelse(Retiro == 1, 'red', 'blue'))
+```
+<br />
+
+Boxplot for all 4 parameters over the entire 6 year timespan:
+```{r box_pollutants, fig.align = "center"}
+ggplot(data = df,
+       aes(x = parameter, y = value, fill = parameter, colour = parameter)) +
+    geom_boxplot(alpha = 0.5)
+```
+The boxplots clearly indicate that the median values of NO2 and O3 are higher than that of O3 and PM2.5. 
+To further assess this, we compared these values to to specifications provided by the WHO, which for NO2 is max: 200 (1H) & 40 (annual).
+<br />
+
+#### 3.3 Time series
+Scatter plots of each parameter over timespan 2011-2016:
+```{r timesc_pollutants, fig.width = 12, fig.height = 12}
+ggplot(df, aes(x = date, y = value)) +
+    geom_point(aes(colour = season), size=1) + geom_smooth(method = 'loess') +
+    scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey')) +
+    facet_wrap(~parameter)
+```
+The plot shows the evolution of the 4 parameters over 6 years season by season. We notice that O3 (ozone a.k.a photochemical smog) increases drastically in summer which is because smog reacts with sunlight to form secondary pollutants that combine and increase the level of smog.
+<br />
+
+The below scatter plot shows the overall trend of weather variables *average temperature*, *precipitation* and *wind speed* for the entire duration of 6 years. In *temperature*, we notice a natural trend of rise and fall which naturally follows seasons.
+```{r timesc_weather, fig.width = 12, fig.height = 12}
+ts9 <- ggplot(data = dt_wide, aes(x = date, y = temp_avg)) +
+  geom_point(aes(colour = season), size=1) +
+  geom_smooth(method = 'loess') +
+  scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey'))
+ts10 <- ggplot(data = dt_wide, aes(x = date, y = precipitation)) +
+  geom_point(aes(colour = season), size=1) +
+  geom_smooth(method = 'loess') +
+  scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey'))
+ts11 <- ggplot(data = dt_wide, aes(x = date, y = wind_avg_speed)) +
+  geom_point(aes(colour = season), size=1) +
+  geom_smooth(method = 'loess') +
+  scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey'))
+
+grid.arrange(ts9, ts10, ts11, nrow = 3, ncol = 1)
+```
+<br />
+
+### 4.Multiple linear regression
+
+The aim is to explain NO2 in terms of all remaining significant variables. To this end, define a function to perform backward feature elimination, sequentially checking in each cycle if the maximum p-value for a variable is above the predefined significance level (default 5%).
+<br />
+When executing lm(), **factor** variables are internally unfolded into dummy columns. If one such column were to attain the maximum p-value beyond the threshold, the entire **factor** column is dropped.
+```{r regr_func}
+backwardElimination <- function(dset, sl = 0.05) {
+    
+    regressor <- lm(formula = NO2 ~ ., data = dset)
+    maxP <- max(coef(summary(regressor))[-1, "Pr(>|t|)"])
+    
+    while (maxP > sl) {
+        
+        j <- which(coef(summary(regressor))[-1, "Pr(>|t|)"] == maxP)
+        
+        if (substr(names(j), 1, 6) == 'season') {
+            
+            dset <- dset[, c('season'):= NULL]
+            
+        } else {
+            
+            dset <- dset[, c(names(j)):= NULL]
+        }
+        regressor <- lm(formula = NO2 ~ ., data = dset)
+        maxP <- max(coef(summary(regressor))[-1, "Pr(>|t|)"])
+    }
+    
+    return(regressor)
+}
+```
+<br />
+
+Execute the function initially considering all variables except date, and display summary of the returned model:
+```{r get_regr}
+regressor <- backwardElimination(dt_wide[, !'date'])
+summary(regressor)
+```
+
+In light of the summary results (immediate low p-values and high R2), execute the function disregarding *temp_avg* to alleviate potential colinearity effects:
+```{r get_regr2}
+regressor2 <- backwardElimination(dt_wide[, !c('date','temp_avg')])
+summary(regressor2)
+```
+The *season* column is dropped during the iterative process as well, without notable changes in the R2 value. Both models explain NO2 over the given timespan reasonably well, but further work would be needed to assess their prediction potential.
+<br />
+Plot fitted values over the training timespan 2011-2016:
+```{r predict, fig.width = 12, fig.height = 12}
+ggplot(dt_wide,
+       aes(x = date, y = NO2)) +
+    geom_point(col = 'darkgray') +
+    geom_line(aes(x = date, y = regressor$fitted.values), col = 'blue', alpha = 0.5)
+```
+<br />
+
+Basic check of main statistical assumptions sustaining linear regression suitability:
+
+Residuals distribute normally around 0
+```{r residuals, fig.align = "center"}
+df_residuals <- as.data.frame(regressor$residuals)
+colnames(df_residuals) <- c('residual')
+
+theme_set(theme_minimal(base_size = 12))
+ggplot(df_residuals,
+       aes(x = residual)) +
+    geom_histogram(aes(y = stat(density)), bins = 30, alpha = 0.7, fill = '#333333') +
+    geom_density(fill = '#ff4d4d', alpha = 0.5) +
+    theme(panel.background = element_rect(fill = '#ffffff')) +
+    ggtitle("Residual density with histogram overlay") +
+    theme(plot.title = element_text(hjust = 0.5, face = 'bold'))
+```
+<br />
+
+Homoscedasticity (and normality)
+```{r res_homoscedasticity_qq, fig.width = 12, fig.height = 6, fig.align = "center"}
+par(mfrow = c(1, 2))
+plot(regressor, which = c(2,1))
+```
