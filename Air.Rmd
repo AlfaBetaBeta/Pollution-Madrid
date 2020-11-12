@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Store all .csv files in a vector, including the directory file prepended for use in the working directory:
 ```{r retrieve_files}
-files_list <- list.files(path = "./workgroup_data", pattern = ".csv", full.names = TRUE)
+files_list <- list.files(path = "./hourly_data", pattern = ".csv", full.names = TRUE)
 ```
 <br />
 
@@ -149,7 +149,7 @@ Read .xlsx file into a dataframe and:
  * Transform *date* column from **DateTime** to **Date**
  * Merge *hourly_df* and *weather_df* via inner join by *date* (both columns are in YYYY-MM-DD format)
 ```{r merge_dfs, results = 'asis'}
-weather_df <- read_excel("./weather.xlsx")
+weather_df <- read_excel("./weather_data/weather.xlsx")
 kable_styling(kable(head(weather_df)), full_width = F)
 
 weather_df <- subset(weather_df, select = c(date, temp_avg, precipitation, wind_avg_speed))
@@ -274,7 +274,7 @@ We infer from the density chart that NO2 and O3 are somewhat normally distribute
 Read location of stations and show their spatial distribution.
 The below map depicts the Retiro station (city center) in red where all the weather related data is collected along with the pollution data collected by the remaining stations. We also notice that certain stations are very far away from the city center like two stations near Barajas and one near Casa de Campo, which might be a cause for skewness in data (which needs to be confirmed through further study/RCA):
 ```{r dist_stations, fig.align = "center"}
-station_data <- read_excel("./Stations.xlsx")
+station_data <- read_excel("./geo_data/Stations.xlsx")
 
 leaflet(data = station_data) %>% setView(lng = -3.6826, lat = 40.4144, zoom = 12) %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
