@@ -39,3 +39,14 @@ Raw data is distributed across three distinct directories:
 	* `precipitation`: daily precipitation (in mm).
 	* `humidity`: (in %).
 	* `wind_avg_speed`: average daily wind speed (in m/sec).
+
+<sup>\*</sup> Etc
+
+## Data integration and assembly
+
+
+## Data processing
+
+
+## Descriptive analysis
+
