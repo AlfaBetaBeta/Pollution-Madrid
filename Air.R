@@ -1,7 +1,7 @@
 #### 1.READ EVERY PIECE OF RAW DATA AND INTEGRATE ALL IN A NEW HOURLY DATASET ####
 
 # Store all .csv files in a vector, including the directory file prepended for use in the working directory:
-files_list <- list.files(path = "./workgroup_data", pattern = ".csv", full.names = TRUE)
+files_list <- list.files(path = "./hourly_data", pattern = ".csv", full.names = TRUE)
 
 # Load library stringr, installing it beforehand if necessary, for use in the subsequent step:
 if (!'stringr' %in% installed.packages()) {
@@ -84,7 +84,7 @@ if (!'readxl' %in% installed.packages()) {
 library(readxl)
 
 # Read .xlsx file into a dataframe:
-weather_df <- read_excel("./weather.xlsx")
+weather_df <- read_excel("./weather_data/weather.xlsx")
 
 # Keep only columns 'date', 'temp_avg', 'precipitation' and 'wind_avg_speed'
 weather_df <- subset(weather_df, select = c(date, temp_avg, precipitation, wind_avg_speed))
@@ -208,7 +208,7 @@ ggplot(data = df,
     geom_boxplot(alpha = 0.5)
 
 # Read location of stations and show spatial distribution
-station_data <- read_excel("./Stations.xlsx")
+station_data <- read_excel("./geo_data/Stations.xlsx")
 
 leaflet(data = station_data) %>% setView(lng = -3.6826, lat = 40.4144, zoom = 12) %>%
     addProviderTiles(providers$CartoDB.Positron) %>%
