@@ -4,14 +4,14 @@ Analysis of air quality data, based on air pollutant and environmental variable 
 
 The main processing and exploration pipeline can be inspected in the html document resulting from knitting `Air.Rmd`. Otherwise, its contents are summarised in the following sections:
 
-* [Data sources]
-* [Data integration and assembly]
-* [Data processing]
-* [Descriptive analysis]
-    * [Correlation matrices]
-    * [Distribution of parameters]
-    * [Time series]
-* [Multiple linear regression]
+* [Data sources]()
+* [Data integration and assembly]()
+* [Data processing]()
+* [Descriptive analysis]()
+    * [Correlation matrices]()
+    * [Distribution of parameters]()
+    * [Time series]()
+* [Multiple linear regression]()
 
 
 ## Data sources
@@ -40,7 +40,7 @@ Raw data is distributed across three distinct directories:
 	* `humidity`: (in %).
 	* `wind_avg_speed`: average daily wind speed (in m/sec).
 
-<sup>\*</sup> *For simplicity, and to restrain the size of the repository, this directory contains only a sample consisting of the first 24 monthly files. The graphs shown in the [descriptive analytics] and [regression] sections, however, refer to the entire six year time span.* 
+<sup>\*</sup> *For simplicity, and to restrain the size of the repository, this directory contains only a sample consisting of the first 24 monthly files. The graphs shown in the [descriptive analytics]() and [regression]() sections, however, refer to the entire six year time span.* 
 
 ## Data integration and assembly
 
