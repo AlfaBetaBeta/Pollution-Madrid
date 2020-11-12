@@ -40,7 +40,7 @@ Raw data is distributed across three distinct directories:
 	* `humidity`: (in %).
 	* `wind_avg_speed`: average daily wind speed (in m/sec).
 
-<sup>\*</sup> Etc
+<sup>\*</sup> *For simplicity, and to restrain the size of the repository, this directory contains only a sample consisting of the first 24 monthly files. The graphs shown in the [descriptive analytics] and [regression] sections, however, refer to the entire six year time span.* 
 
 ## Data integration and assembly
 
