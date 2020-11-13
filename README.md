@@ -257,7 +257,7 @@ Parameter densities in facets:
 ggplot(df, aes(x = value)) + geom_density(aes(color = parameter)) + facet_wrap(~parameter)
 ```
 <p align="middle">
-  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/densities.png" width=80% height=80%>
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/densities.png" width=70% height=70%>
 </p>
 
 It can be inferred from the density chart that NO<sub>2</sub> and O<sub>3</sub> are somewhat normally distributed as opposed to SO<sub>2</sub> and PM<sub>2.5</sub> which are skewed to the right.
@@ -280,4 +280,8 @@ ggplot(data = df,
        aes(x = parameter, y = value, fill = parameter, colour = parameter)) +
     geom_boxplot(alpha = 0.5)
 ```
+<p align="middle">
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/boxplots.png" width=80% height=80%>
+</p>
+
 The boxplots clearly indicate that the median values of NO<sub>2</sub> and O<sub>3</sub> are higher than those of SO<sub>2</sub> and PM<sub>2.5</sub>. As reference for further assessment, these values might be compared to the specifications provided by the WHO, which for NO<sub>2</sub> state max: 200 (1H) & 40 (annual).
