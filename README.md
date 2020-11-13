@@ -249,3 +249,17 @@ Additionally, it is possible to generate a scatter plot of the interaction of al
 ggplot(dt_long, aes(x = value, y = weather_value)) + geom_point(size=1) + facet_wrap(~ weather_variable + parameter)
 ```
 <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/scatterplot.png" width=100% height=100%>
+
+### Distribution of parameters
+
+Parameter densities in facets:
+```
+ggplot(df, aes(x = value)) + geom_density(aes(color = parameter)) + facet_wrap(~parameter)
+```
+<p align="middle">
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/densities.png" width=80% height=80%>
+</p>
+
+It can be inferred from the density chart that NO<sub>2</sub> and O<sub>3</sub> are somewhat normally distributed as opposed to SO<sub>2</sub> and PM<sub>2.5</sub> which are skewed to the right where the mean could be higher than the median. 
+
+Read location of stations and show their spatial distribution. The below map depicts the Retiro station (city center) in red where all the weather related data is collected along with the pollution data collected by the remaining stations. We also notice that certain stations are very far away from the city center like two stations near Barajas and one near Casa de Campo, which might be a cause for skewness in data (which needs to be confirmed through further study/RCA):
