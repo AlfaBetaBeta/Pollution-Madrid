@@ -288,8 +288,8 @@ ggplot(data = df,
        aes(x = parameter, y = value, fill = parameter, colour = parameter)) +
     geom_boxplot(alpha = 0.5)
 ```
-The boxplots clearly indicate that the median values of NO2 and O3 are higher than that of O3 and PM2.5. 
-To further assess this, we compared these values to to specifications provided by the WHO, which for NO2 is max: 200 (1H) & 40 (annual).
+The boxplots clearly indicate that the median values of NO2 and O3 are higher than that of SO2 and PM2.5. 
+To further assess this, we compared these values to specifications provided by the WHO, which for NO2 is max: 200 (1H) & 40 (annual).
 <br />
 
 #### 3.3 Time series
