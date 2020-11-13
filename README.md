@@ -238,8 +238,9 @@ mycol <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA
 corrplot(mcor, method="shade", shade.col=NA, tl.col="black", tl.srt=45,
          col=mycol(200), addCoef.col="black",order="AOE")
 ```
-
-<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/corr_heatmap.png" width=100% height=100%>
+<p align="middle">
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/corr_heatmap.png" width=90% height=90%>
+</p>
 
 This is obtained to visualize positive and negative relationships that help result interpretation. For instance, taking NO2 as a feature of interest, a high negative correlation between NO2 and O3 becomes apparent, and so does a high positive correlation between NO2 and SO2. 
 
