@@ -76,6 +76,8 @@ This operation constitutes the computational bottleneck of the entire process an
 
 ## Data processing and final assembly
 
+### Parameter data
+
 Several parameters are measured in the weather stations, but in the context of this study only four of them are of interest. In `hourly_df`, they are encoded as follows:
 
 * `8` = NO<sub>2</sub>
@@ -125,6 +127,8 @@ hourly_df$date <- as.Date(hourly_df$date, format = "%Y-%m-%d")
 hourly_df[,c('year','month','day')] <- NULL
 ```
 
+### Weather data
+
 Shifting focus to the `weather_data/` directory, and reading the `.xlsx` file into a dataframe, the following steps are executed:
 
  * Keep only columns `date`, `temp_avg`, `precipitation` and `wind_avg_speed`
@@ -166,3 +170,4 @@ dt_long <- melt(as.data.table(df),
 
 ## Descriptive analysis
 
+Under construction...
