@@ -190,14 +190,14 @@ For ease of `ggplot` executions in the [descriptive analysis]() section, store a
 * Shorten `df` length and expand `df` width by having `parameter` values in separate columns
 * Extend `df` length and contract `df` width by having `weather` variables as factor levels in a common column
 
-Execution and inspection is shown below for reference:
+Execution and inspection of first six rows is shown below for reference:
 ```
 dt_wide <- dcast(as.data.table(df),
                  date + season + temp_avg + precipitation + wind_avg_speed ~ parameter,
                  value.var = 'value')
 ```
 
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    | season | temp_avg | precipitation | wind_avg_speed |    NO2   |    SO2    |     O3    |   PM2.5   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | season | temp_avg | precipitation | wind_avg_speed |    NO2   |    SO2    |     O3    |   PM2.5   |
 | :-----------------------------: | :----: | :------: | :-----------: | :------------: | :------: | :-------: | :-------: | :-------: |
 | 2011-01-01                      | Winter |   8.3    |     0.00      |       5.2      | 41.51042 | 10.712500 | 20.473214 |  9.416667 |
 | 2011-01-02                      | Winter |   8.6    |     0.00      |       5.4      | 48.47396 | 11.933333 | 15.562500 |  9.076389 |
