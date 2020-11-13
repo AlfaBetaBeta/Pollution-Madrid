@@ -190,7 +190,7 @@ For ease of `ggplot` executions in the [descriptive analysis]() section, store a
 * Shorten `df` length and expand `df` width by having `parameter` values in separate columns
 * Extend `df` length and contract `df` width by having `weather` variables as factor levels in a common column
 
-Execution and inspection of first six rows is shown below for reference:
+Execution and inspection of the first six rows is shown below for reference:
 ```
 dt_wide <- dcast(as.data.table(df),
                  date + season + temp_avg + precipitation + wind_avg_speed ~ parameter,
@@ -226,4 +226,25 @@ dt_long <- melt(as.data.table(df),
 
 ## Descriptive analysis
 
-Under construction...
+### Correlation matrices
+
+Let us create a correlation matrix with the dcasted datatable `dt_wide`:
+```
+mcor <- cor(dt_wide[, !c('date','season')])
+```
+Alternatively, and more graphically, a heatmap with quantified correlation can showcase the same information:
+```
+mycol <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA")) 
+corrplot(mcor, method="shade", shade.col=NA, tl.col="black", tl.srt=45,
+         col=mycol(200), addCoef.col="black",order="AOE")
+```
+
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/corr_heatmap.png" width=100% height=100%>
+
+This is obtained to visualize positive and negative relationships that help result interpretation. For instance, taking NO2 as a feature of interest, a high negative correlation between NO2 and O3 becomes apparent, and so does a high positive correlation between NO2 and SO2. 
+
+Additionally, it is possible to generate a scatter plot of the interaction of all (4x3) parameters with all weather variables:
+```
+ggplot(dt_long, aes(x = value, y = weather_value)) + geom_point(size=1) + facet_wrap(~ weather_variable + parameter)
+```
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/scatterplot.png" width=100% height=100%>
