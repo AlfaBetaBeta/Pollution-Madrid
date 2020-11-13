@@ -260,6 +260,24 @@ ggplot(df, aes(x = value)) + geom_density(aes(color = parameter)) + facet_wrap(~
   <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/densities.png" width=80% height=80%>
 </p>
 
-It can be inferred from the density chart that NO<sub>2</sub> and O<sub>3</sub> are somewhat normally distributed as opposed to SO<sub>2</sub> and PM<sub>2.5</sub> which are skewed to the right where the mean could be higher than the median. 
+It can be inferred from the density chart that NO<sub>2</sub> and O<sub>3</sub> are somewhat normally distributed as opposed to SO<sub>2</sub> and PM<sub>2.5</sub> which are skewed to the right.
 
-Read location of stations and show their spatial distribution. The below map depicts the Retiro station (city center) in red where all the weather related data is collected along with the pollution data collected by the remaining stations. We also notice that certain stations are very far away from the city center like two stations near Barajas and one near Casa de Campo, which might be a cause for skewness in data (which needs to be confirmed through further study/RCA):
+The map below depicts the Retiro station in red (where all the weather related data is collected) along with the pollution data collected by the remaining stations. Certain stations are very far away from the city centre, e.g. two stations near Barajas and one near Casa de Campo, which might be a cause for the skewness in the data (though this needs to be confirmed through further study).
+```
+station_data <- read_excel("./geo_data/Stations.xlsx")
+
+leaflet(data = station_data) %>% setView(lng = -3.6826, lat = 40.4144, zoom = 12) %>%
+    addProviderTiles(providers$CartoDB.Positron) %>%
+    addCircleMarkers(~long, ~lat, color = ~ifelse(Retiro == 1, 'red', 'blue'))
+```
+<p align="middle">
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/map_screenshot.png" width=80% height=80%>
+</p>
+
+Boxplot for all four parameters over the entire six year time span:
+```
+ggplot(data = df,
+       aes(x = parameter, y = value, fill = parameter, colour = parameter)) +
+    geom_boxplot(alpha = 0.5)
+```
+The boxplots clearly indicate that the median values of NO<sub>2</sub> and O<sub>3</sub> are higher than those of SO<sub>2</sub> and PM<sub>2.5</sub>. As reference for further assessment, these values might be compared to the specifications provided by the WHO, which for NO<sub>2</sub> state max: 200 (1H) & 40 (annual).
