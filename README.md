@@ -4,14 +4,16 @@ This repository showcases an analysis of air quality data, based on air pollutan
 
 The main processing and exploration pipeline can be inspected in the html document resulting from knitting `Air.Rmd`. Otherwise, its contents are summarised in the following sections:
 
-* [Data sources]()
-* [Hourly data integration]()
-* [Data processing and final assembly]()
-* [Descriptive analysis]()
-    * [Correlation matrices]()
-    * [Distribution of parameters]()
-    * [Time series]()
-* [Multiple linear regression]()
+* [Data sources](https://github.com/AlfaBetaBeta/Pollution-Madrid#data-sources)
+* [Hourly data integration](https://github.com/AlfaBetaBeta/Pollution-Madrid#hourly-data-integration)
+* [Data processing and final assembly](https://github.com/AlfaBetaBeta/Pollution-Madrid#data-processing-and-final-assembly)
+    * [Parameter data](https://github.com/AlfaBetaBeta/Pollution-Madrid#parameter-data)
+    * [Weather data](https://github.com/AlfaBetaBeta/Pollution-Madrid#weather-data)
+* [Descriptive analysis](https://github.com/AlfaBetaBeta/Pollution-Madrid#descriptive-analysis)
+    * [Correlation matrices](https://github.com/AlfaBetaBeta/Pollution-Madrid#correlation-matrices)
+    * [Distribution of parameters](https://github.com/AlfaBetaBeta/Pollution-Madrid#distribution-of-parameters)
+    * [Time series](https://github.com/AlfaBetaBeta/Pollution-Madrid#time-series)
+* [Multiple linear regression](https://github.com/AlfaBetaBeta/Pollution-Madrid#multiple-linear-regression)
 
 
 ## Data sources
@@ -40,7 +42,7 @@ Raw data is distributed across three distinct directories:
 	* `humidity`: (in %).
 	* `wind_avg_speed`: average daily wind speed (in m/sec).
 
-<sup>\*</sup> *For simplicity, and to limit the size of the repository, `hourly_data/` contains here only a sample consisting of the first 24 monthly files. The graphs shown in the [descriptive analytics]() and [regression]() sections, however, refer to the entire six year time span.* 
+<sup>\*</sup> *For simplicity, and to limit the size of the repository, `hourly_data/` contains here only a sample consisting of the first 24 monthly files. The graphs shown in the [descriptive analytics](https://github.com/AlfaBetaBeta/Pollution-Madrid#descriptive-analysis) and [regression](https://github.com/AlfaBetaBeta/Pollution-Madrid#multiple-linear-regression) sections, however, refer to the entire six year time span.* 
 
 
 ## Hourly data integration
@@ -185,7 +187,7 @@ Inspection of `df` at this point renders (only first six rows for clarity):
 | 2011-01-02 |    SO2    |  11.933333   |   8.6    |       0       |       5.4      | Winter |
 | 2011-01-02 |    NO2    |  48.473958   |   8.6    |       0       |       5.4      | Winter |
 
-For ease of `ggplot` executions in the [descriptive analysis]() section, store alternative shapes of `df` via `melt()` and `dcast()`:
+For ease of `ggplot` executions in the [descriptive analysis](https://github.com/AlfaBetaBeta/Pollution-Madrid#descriptive-analysis) section, store alternative shapes of `df` via `melt()` and `dcast()`:
 
 * Shorten `df` length and expand `df` width by having `parameter` values in separate columns
 * Extend `df` length and contract `df` width by having `weather` variables as factor levels in a common column
@@ -242,7 +244,7 @@ corrplot(mcor, method="shade", shade.col=NA, tl.col="black", tl.srt=45,
   <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/corr_heatmap.png" width=90% height=90%>
 </p>
 
-This is obtained to visualize positive and negative relationships that help result interpretation. For instance, taking NO2 as a feature of interest, a high negative correlation between NO2 and O3 becomes apparent, and so does a high positive correlation between NO2 and SO2. 
+This is obtained to visualize positive and negative relationships that help result interpretation. For instance, taking NO<sub>2</sub> as a feature of interest, a high negative correlation between NO<sub>2</sub> and O<sub>3</sub> becomes apparent, and so does a high positive correlation between NO<sub>2</sub> and SO<sub>2</sub>. 
 
 Additionally, it is possible to generate a scatter plot of the interaction of all (4x3) parameters with all weather variables:
 ```
