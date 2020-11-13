@@ -73,6 +73,17 @@ for (idx in 1:length(files_list)) {
 ```
 This operation constitutes the computational bottleneck of the entire process and, depending on the machine or runtime settings, it may take up to a few minutes. It is not argued here that this approach is efficient, it is merely functional and leaves plenty of room for improvement. Future revisions of this repository will address this issue, aiming at optimising the assembly.
 
+For reference, inspection of `hourly_df` at this point renders (only first six rows for clarity):
+
+| year | month | day | hour |  station | parameter | value |
+| :--: | :---: | :-: | :--: | :------: | :-------: | :---: |
+| 2011 |   1   |  1  |   1  | 28079004 |     1     |   6   |
+| 2011 |   1   |  1  |   1  | 28079008 |     1     |  12   |
+| 2011 |   1   |  1  |   1  | 28079017 |     1     |  12   |
+| 2011 |   1   |  1  |   1  | 28079018 |     1     |  10   |
+| 2011 |   1   |  1  |   1  | 28079024 |     1     |   7   |
+| 2011 |   1   |  1  |   1  | 28079035 |     1     |  11   |
+
 
 ## Data processing and final assembly
 
@@ -127,6 +138,18 @@ hourly_df$date <- as.Date(hourly_df$date, format = "%Y-%m-%d")
 hourly_df[,c('year','month','day')] <- NULL
 ```
 
+For reference, inspection of `hourly_df` at this point renders (only first six rows for clarity):
+
+| parameter |    value     |    date    |
+| :-------: | :----------: | :--------: |
+|    SO2    |  10.712500   | 2011-01-01 |
+|    NO2    |  41.510417   | 2011-01-01 |
+|   PM2.5   |   9.416667   | 2011-01-01 |
+|    O3     |  20.473214   | 2011-01-01 |
+|    SO2    |  11.933333   | 2011-01-02 |
+|    NO2    |  48.473958   | 2011-01-02 |
+
+
 ### Weather data
 
 Shifting focus to the `weather_data/` directory, and reading the `.xlsx` file into a dataframe, the following steps are executed:
@@ -151,21 +174,54 @@ df$season <- factor(ifelse(3 <= month(df$date) & month(df$date) <= 5, 'Spring',
                     levels = c('Spring','Summer','Autumn','Winter'))
 ```
 
+Inspection of `df` at this point renders (only first six rows for clarity):
+
+|    date    | parameter |    value     | temp_avg | precipitation | wind_avg_speed | season |
+| :--------: | :-------: | :----------: | :------: | :-----------: | :------------: | :----: |
+| 2011-01-01 |    SO2    |  10.712500   |   8.3    |       0       |       5.2      | Winter |
+| 2011-01-01 |    NO2    |  41.510417   |   8.3    |       0       |       5.2      | Winter |
+| 2011-01-01 |   PM2.5   |   9.416667   |   8.3    |       0       |       5.2      | Winter |
+| 2011-01-01 |    O3     |  20.473214   |   8.3    |       0       |       5.2      | Winter |
+| 2011-01-02 |    SO2    |  11.933333   |   8.6    |       0       |       5.4      | Winter |
+| 2011-01-02 |    NO2    |  48.473958   |   8.6    |       0       |       5.4      | Winter |
+
 For ease of `ggplot` executions in the [descriptive analysis]() section, store alternative shapes of `df` via `melt()` and `dcast()`:
 
 * Shorten `df` length and expand `df` width by having `parameter` values in separate columns
 * Extend `df` length and contract `df` width by having `weather` variables as factor levels in a common column
+
+Execution and inspection is shown below for reference:
 ```
 dt_wide <- dcast(as.data.table(df),
                  date + season + temp_avg + precipitation + wind_avg_speed ~ parameter,
                  value.var = 'value')
+```
 
+|    date    | season | temp_avg | precipitation | wind_avg_speed |    NO2   |    SO2    |     O3    |   PM2.5   |
+| :--------: | :----: | :------: | :-----------: | :------------: | :------: | :-------: | :-------: | :-------: |
+| 2011-01-01 | Winter |   8.3    |     0.00      |       5.2      | 41.51042 | 10.712500 | 20.473214 |  9.416667 |
+| 2011-01-02 | Winter |   8.6    |     0.00      |       5.4      | 48.47396 | 11.933333 | 15.562500 |  9.076389 |
+| 2011-01-03 | Winter |   4.2    |     0.00      |       3.5      | 63.63368 | 11.906019 |  9.446429 | 11.944444 |
+| 2011-01-04 | Winter |   6.5    |     0.00      |       6.3      | 46.29514 |  8.841667 | 13.342262 |  9.402778 |
+| 2011-01-05 | Winter |   8.9    |     0.00      |      10.4      | 51.51736 |  9.505093 | 10.883929 | 10.513889 |
+| 2011-01-06 | Winter |  12.2    |     0.51      |      15.7      | 35.32812 |  8.633333 | 23.419643 |  6.979167 |
+
+```
 dt_long <- melt(as.data.table(df),
                 id.vars = c('date', 'season', 'parameter','value'),
                 measure.vars = c('temp_avg','precipitation','wind_avg_speed'),
                 variable.name = 'weather_variable',
                 value.name = 'weather_value')
 ```
+
+|    date    | season | parameter |    value     | weather_variable | weather_value |
+| :--------: | :----: | :-------: | :----------: | :--------------: | :-----------: |
+| 2011-01-01 | Winter |    SO2    |  10.712500   |     temp_avg     |      8.3      |
+| 2011-01-01 | Winter |    NO2    |  41.510417   |     temp_avg     |      8.3      |
+| 2011-01-01 | Winter |   PM2.5   |   9.416667   |     temp_avg     |      8.3      |
+| 2011-01-01 | Winter |    O3     |  20.473214   |     temp_avg     |      8.3      |
+| 2011-01-02 | Winter |    SO2    |  11.933333   |     temp_avg     |      8.6      |
+| 2011-01-02 | Winter |    NO2    |  48.473958   |     temp_avg     |      8.6      |
 
 
 ## Descriptive analysis
