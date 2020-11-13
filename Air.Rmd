@@ -268,7 +268,7 @@ Parameter densities in facets:
 ```{r dist_pollutants, fig.align = "center"}
 ggplot(df, aes(x = value)) + geom_density(aes(color = parameter)) + facet_wrap(~parameter)
 ```
-We infer from the density chart that NO2 and O3 are somewhat normally distributed as opposed to SO2 and PM2.5 which are skewed to the left where the mean could be higher than the median.
+We infer from the density chart that NO2 and O3 are somewhat normally distributed as opposed to SO2 and PM2.5 which are skewed to the right where the mean could be higher than the median.
 <br />
 
 Read location of stations and show their spatial distribution.
