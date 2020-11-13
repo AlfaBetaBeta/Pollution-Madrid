@@ -320,3 +320,60 @@ grid.arrange(ts9, ts10, ts11, nrow = 3, ncol = 1)
 <p align="middle">
   <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/ts_weather.png" width=100% height=100%>
 </p>
+
+
+## Multiple linear regression
+
+The aim is to explain NO<sub>2</sub> in terms of all remaining significant variables. To this end, a function is defined to perform backward feature elimination, sequentially checking in each cycle if the maximum p-value for a variable is above the predefined significance level (default 5%). 
+When executing `lm()`, factor variables are internally unfolded into dummy columns. If one such column were to attain the maximum p-value beyond the threshold, the **entire factor column is dropped**.
+```
+backwardElimination <- function(dset, sl = 0.05) {
+    
+    regressor <- lm(formula = NO2 ~ ., data = dset)
+    maxP <- max(coef(summary(regressor))[-1, "Pr(>|t|)"])
+    
+    while (maxP > sl) {
+        
+        j <- which(coef(summary(regressor))[-1, "Pr(>|t|)"] == maxP)
+        
+        if (substr(names(j), 1, 6) == 'season') {
+            
+            dset <- dset[, c('season'):= NULL]
+            
+        } else {
+            
+            dset <- dset[, c(names(j)):= NULL]
+        }
+        regressor <- lm(formula = NO2 ~ ., data = dset)
+        maxP <- max(coef(summary(regressor))[-1, "Pr(>|t|)"])
+    }
+    
+    return(regressor)
+}
+```
+
+Execute the function initially considering all variables except `date`, and display a summary of the returned model:
+```
+regressor <- backwardElimination(dt_wide[, !'date'])
+summary(regressor)
+```
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/summary_lr1.png" width=100% height=100%>
+
+In light of the summary results (immediate low p-values and high R<sup>2</sup>), execute the function disregarding `temp_avg` to alleviate potential colinearity effects:
+```
+regressor2 <- backwardElimination(dt_wide[, !c('date','temp_avg')])
+summary(regressor2)
+```
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/summary_lr2.png" width=100% height=100%>
+
+The `season` column is dropped during the iterative process as well, without notable changes in the R<sup>2</sup> value. Both models explain NO<sub>2</sub> over the given timespan reasonably well, but further work would be needed to assess their prediction potential.
+
+Finally, plot the fitted values over the entire training timespan 2011-2016:
+```
+ggplot(dt_wide,
+       aes(x = date, y = NO2)) +
+    geom_point(col = 'darkgray') +
+    geom_line(aes(x = date, y = regressor$fitted.values), col = 'blue', alpha = 0.5)
+```
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/fitted_values.png" width=100% height=100%>
+
