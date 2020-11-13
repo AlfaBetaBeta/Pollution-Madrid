@@ -327,7 +327,7 @@ grid.arrange(ts9, ts10, ts11, nrow = 3, ncol = 1)
 ## Multiple linear regression
 
 The aim is to explain NO<sub>2</sub> in terms of all remaining significant variables. To this end, a function is defined to perform backward feature elimination, sequentially checking in each cycle if the maximum p-value for a variable is above the predefined significance level (default 5%). 
-When executing `lm()`, factor variables are internally unfolded into dummy columns. If one such column were to attain the maximum p-value beyond the threshold, the **entire factor column is dropped**.
+When executing `lm()`, factor variables are internally unfolded into dummy columns. If one such column were to attain the maximum p-value beyond the threshold, **the entire factor column is dropped**.
 ```
 backwardElimination <- function(dset, sl = 0.05) {
     
