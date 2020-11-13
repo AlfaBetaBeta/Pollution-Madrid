@@ -377,3 +377,4 @@ ggplot(dt_wide,
 ```
 <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/fitted_values.png" width=100% height=100%>
 
+*(Basic checks of the suitability of the main statistical assumptions sustaining linear regression can be found in the knitted html document.)*
