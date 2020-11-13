@@ -284,4 +284,39 @@ ggplot(data = df,
   <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/boxplots.png" width=65% height=65%>
 </p>
 
-The boxplots clearly indicate that the median values of NO<sub>2</sub> and O<sub>3</sub> are higher than those of SO<sub>2</sub> and PM<sub>2.5</sub>. As reference for further assessment, these values might be compared to the specifications provided by the WHO, which for NO<sub>2</sub> state max: 200 (1H) & 40 (annual).
+The boxplots clearly indicate that the median values of NO<sub>2</sub> and O<sub>3</sub> are significantly higher than those of SO<sub>2</sub> and PM<sub>2.5</sub>. As reference for further assessment, these values might be compared to the specifications provided by the WHO, which for NO<sub>2</sub> state max: 200 (1H) & 40 (annual).
+
+### Time series
+
+Scatter plots of each parameter over the timespan 2011-2016:
+```
+ggplot(df, aes(x = date, y = value)) +
+    geom_point(aes(colour = season), size=1) + geom_smooth(method = 'loess') +
+    scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey')) +
+    facet_wrap(~parameter)
+```
+Note that O<sub>3</sub> (ozone a.k.a photochemical smog) increases drastically in summer which is because smog reacts with sunlight to form secondary pollutants.
+<p align="middle">
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/ts_pollutants.png" width=100% height=100%>
+</p>
+
+Proceeding similarly for the weather variables:
+```
+ts9 <- ggplot(data = dt_wide, aes(x = date, y = temp_avg)) +
+  geom_point(aes(colour = season), size=1) +
+  geom_smooth(method = 'loess') +
+  scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey'))
+ts10 <- ggplot(data = dt_wide, aes(x = date, y = precipitation)) +
+  geom_point(aes(colour = season), size=1) +
+  geom_smooth(method = 'loess') +
+  scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey'))
+ts11 <- ggplot(data = dt_wide, aes(x = date, y = wind_avg_speed)) +
+  geom_point(aes(colour = season), size=1) +
+  geom_smooth(method = 'loess') +
+  scale_color_manual(values = c('green','yellow2','chocolate3','darkgrey'))
+
+grid.arrange(ts9, ts10, ts11, nrow = 3, ncol = 1)
+```
+<p align="middle">
+  <img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/ts_weather.png" width=100% height=100%>
+</p>
