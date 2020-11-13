@@ -197,7 +197,7 @@ dt_wide <- dcast(as.data.table(df),
                  value.var = 'value')
 ```
 
-| &nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;&nbsp;&nbsp;&nbsp;    | season | temp_avg | precipitation | wind_avg_speed |    NO2   |    SO2    |     O3    |   PM2.5   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    | season | temp_avg | precipitation | wind_avg_speed |    NO2   |    SO2    |     O3    |   PM2.5   |
 | :-----------------------------: | :----: | :------: | :-----------: | :------------: | :------: | :-------: | :-------: | :-------: |
 | 2011-01-01                      | Winter |   8.3    |     0.00      |       5.2      | 41.51042 | 10.712500 | 20.473214 |  9.416667 |
 | 2011-01-02                      | Winter |   8.6    |     0.00      |       5.4      | 48.47396 | 11.933333 | 15.562500 |  9.076389 |
