@@ -357,14 +357,14 @@ Execute the function initially considering all variables except `date`, and disp
 regressor <- backwardElimination(dt_wide[, !'date'])
 summary(regressor)
 ```
-<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/summary_lr1.png" width=100% height=100%>
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/summary_lr1.png" width=60% height=60%>
 
 In light of the summary results (immediate low p-values and high R<sup>2</sup>), execute the function disregarding `temp_avg` to alleviate potential colinearity effects:
 ```
 regressor2 <- backwardElimination(dt_wide[, !c('date','temp_avg')])
 summary(regressor2)
 ```
-<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/summary_lr2.png" width=100% height=100%>
+<img src="https://github.com/AlfaBetaBeta/Pollution-Madrid/blob/master/img/summary_lr2.png" width=60% height=60%>
 
 The `season` column is dropped during the iterative process as well, without notable changes in the R<sup>2</sup> value. Both models explain NO<sub>2</sub> over the given timespan reasonably well, but further work would be needed to assess their prediction potential.
 
